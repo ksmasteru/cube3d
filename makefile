@@ -19,7 +19,7 @@ INCDIR	= ./includes
 OBJDIR	= ./obj
 
 # src / obj files
-SRC		= main.c events.c
+SRC		= src/main.c src/events.c
 OBJ		=$(SRC:.c=.o)
 
 # compiler
@@ -50,7 +50,7 @@ $(NAME): $(OBJ)
 	$(CC) $(OBJ) $(MLX_LNK) -lm -o $(NAME)
 
 clean:
-	rm -rf $(OBJDIR)
+	rm -rf $(OBJ)
 	make -C $(MLX) clean
 
 fclean: clean

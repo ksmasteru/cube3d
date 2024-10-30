@@ -3,6 +3,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
+
 
 typedef struct s_img{
     void    *mlx_img;
@@ -22,5 +24,5 @@ typedef struct s_data{
 
 int close_win(t_data *data);
 int	pressed_key_event(int keycode, t_data *data);
-void render_walls(t_data *data);
+
 #endif

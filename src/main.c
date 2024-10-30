@@ -1,5 +1,5 @@
 #include "../includes/cube3d.h"
-#include "miniLibX/mlx.h"
+#include "../miniLibX/mlx.h"
 
 // set data->img.mlx_img to NULL after destroying the img.
 void ft_destroy_img(t_data *data)

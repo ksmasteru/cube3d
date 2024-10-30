@@ -1,5 +1,5 @@
-#include "cube3d.h"
-#include "miniLibX/mlx.h"
+#include "../includes/cube3d.h"
+#include "../miniLibX/mlx.h"
 
 int	close_win(t_data *data)
 {
