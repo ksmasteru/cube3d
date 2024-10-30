@@ -1,5 +1,5 @@
 #include "cube3d.h"
-
+#include "miniLibX/mlx.h"
 
 int	close_win(t_data *data)
 {
@@ -11,9 +11,8 @@ int	close_win(t_data *data)
 
 int	pressed_key_event(int keycode, t_data *data)
 {
-	if (keycode == 69)
+	if (keycode == 53)
 	    close_win(data);
-    printf("key %d was pressed\n", keycode);
     return (0);
 }
 
