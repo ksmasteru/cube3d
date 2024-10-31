@@ -14,11 +14,22 @@ typedef struct s_img{
     int     endian;
 }t_img;
 
+typedef struct s_player{
+    double  vision_direction; //  v_d =  arctan(vy/vx)
+    int     posX;
+    int     posY;
+    int     dirX;
+    int     dirY;
+    int     planX;
+    int     planY;
+}t_player;
+
 typedef struct s_data{
     void    *mlx_ptr;
     void    *win_ptr;
     int     win_height;
     int     win_width;
+    t_player    player;
     t_img   img;
 }t_data;
 
