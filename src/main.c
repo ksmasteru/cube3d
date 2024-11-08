@@ -85,9 +85,15 @@ void update_player_data(t_map *map, t_player *player)
         map->mapx += player->stepx;
     else
         map->mapy = player->stepy;
-    // init deltasideX this is done only at the start of each loop
-    if (player->dirx) // if you are better outwork them.
-        
+    // deltasidex , deltasidey;
+    
+}
+
+void    update_camera_data(t_player *player, int x)
+{
+    player->camerax = 2 * x / (double) mapWidth - 1;
+    player->raydirx = player->dirx + player->planex * player->camerax;
+    player->raydiry = player->diry + player->planey * player->camerax;
 }
 void render_walls(t_data *data)
 {
@@ -138,15 +144,14 @@ int map[mapWidth][mapHeight]=
     int side;
     // stepx; stepy;
     // determine stepx, stepy : should handle case where x|y = 0
+    update_camera_data(&player, 1);
     player.camerax = 2 * player.posx / (double)mapWidth - 1;
     player.raydirx = player.dirx + player.planex * player.camerax;
     player.raydiry = player.diry + player.planey * player.camerax;
-    double deltasidex = abs(1 / player.raydirx); // ray dir cannoot be 0 in this case
-    double deltasidey = abs(1 / player.raydiry);
     // daba lblan 3endek mapx,y udpated.,x
     // this will allow me to calculate sidedisX
     // sideDisty;
-    update_player_data();
+    update_player_data(&player);
     if (player.dirx < 0)
         map.sideDistx = (map.mapx + 1 - player.posx) * deltasidex;
     else

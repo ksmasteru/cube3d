@@ -33,7 +33,8 @@ typedef struct s_map{
     int     mapy;
     double  sideDistx;
     double  sideDisty;
-
+    double  deltasidex;
+    double  deltasidey;
 }t_map;
 
 typedef struct s_data{
