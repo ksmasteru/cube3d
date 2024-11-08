@@ -15,14 +15,26 @@ typedef struct s_img{
 }t_img;
 
 typedef struct s_player{
-    double  vision_direction; //  v_d =  arctan(vy/vx)
-    int     posX;
-    int     posY;
-    int     dirX;
-    int     dirY;
-    int     planX;
-    int     planY;
+    double   posx;
+    double   posy;
+    double   planex;
+    double   planey;
+    double   camerax;
+    double   dirx;
+    double   diry;
+    int      stepx;
+    int      stepy;
+    double  raydirx;
+    double  raydiry;
 }t_player;
+
+typedef struct s_map{
+    int     mapx;
+    int     mapy;
+    double  sideDistx;
+    double  sideDisty;
+
+}t_map;
 
 typedef struct s_data{
     void    *mlx_ptr;

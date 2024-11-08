@@ -1,7 +1,10 @@
 #include "../includes/cube3d.h"
 #include "../miniLibX/mlx.h"
 #include <math.h>
-
+#define mapWidth 24
+#define mapHeight 24
+#define screenWidth 640
+#define screenHeight 480
 // set data->img.mlx_img to NULL after destroying the img.
 void ft_destroy_img(t_data *data)
 {
@@ -11,7 +14,7 @@ void ft_destroy_img(t_data *data)
 
 int ft_create_img(t_data *data)
 {
-    data->img.mlx_img = mlx_new_image(data->mlx_ptr, 800, 800);
+    data->img.mlx_img = mlx_new_image(data->mlx_ptr, 720, 720);
         printf("created a new img object\n");
     if (!data->img.mlx_img)
         return (-1);
@@ -23,8 +26,8 @@ int init_data(t_data *data)
 {
     data->mlx_ptr = mlx_init();
     data->img.mlx_img = NULL;
-    data->win_height = 800;
-    data->win_width = 800;
+    data->win_height = 720;
+    data->win_width = 720;
     data->win_ptr = mlx_new_window(data->mlx_ptr, data->win_width, data->win_height, "CUBE3D");
     if (ft_create_img(data) < 0)
         return (-1);
@@ -36,77 +39,122 @@ void draw_vision_vector(t_data *data, int img_width, int img_height)
     // pos x pos y. img height img width
     int y;
    // int x;
-    int _x = (data->player.posX + img_width / 2);
+    //int _x = (data->player.posX + img_width / 2);
     y = 1;
     //x = 1;
-    while (y < data->player.posY + img_height)
+    while (y < data->player.posy + img_height)
     {
             // right delimeter
-        mlx_pixel_put(data->mlx_ptr, data->win_ptr, -250 + (_x * 0.866 + y * 0.5), y ,0xff0000);
+       // mlx_pixel_put(data->mlx_ptr, data->win_ptr, -250 + (_x * 0.866 + y * 0.5), y ,0xff0000);
             // direction
-        mlx_pixel_put(data->mlx_ptr, data->win_ptr, (data->player.posX + img_width / 2), y,0x00ff00);
+        mlx_pixel_put(data->mlx_ptr, data->win_ptr, (data->player.posx + img_width / 2), y,0x00ff00);
             // left delimeter
-        mlx_pixel_put(data->mlx_ptr, data->win_ptr, 425 + (_x * 0.866 - y * 0.5), y ,0xff0000);
+        //mlx_pixel_put(data->mlx_ptr, data->win_ptr, 425 + (_x * 0.866 - y * 0.5), y ,0xff0000);
         y++;
             //
-        }
+    }
        // x++;
 }
+void init_player_data(t_map *map, t_player *player)
+{
+    player->posx = 22.00;
+    player->posy = 13.00;
+    player->planex = 0;
+    player->planey = 0.66;
+    player->dirx = -1;
+    player->diry = 0;
+    player->stepx = 1;
+    player->stepy = -1;
+    map->mapx = (int)player->posx;
+    map->mapy = (int)player->posy;
 
+}
+void update_player_data(t_map *map, t_player *player)
+{
+    // now used to determine stepx, stepy, and increment the ray
+    // iside the square where the player is
+    if (player->dirx < 0)
+        player->stepx = -1;
+    else
+        player->stepx = 1;
+    if (player->diry < 0)
+        player->stepy = -1;
+    else
+        player->stepy = 1;
+    if (player->dirx < player->diry)
+        map->mapx += player->stepx;
+    else
+        map->mapy = player->stepy;
+    // init deltasideX this is done only at the start of each loop
+    if (player->dirx) // if you are better outwork them.
+        
+}
 void render_walls(t_data *data)
 {
     // draw a line on img
     int     x;
     int     y;
-    int     img_width = 50;
-    int     img_height = 50;
+    int     img_width = 30;
+    int     img_height = 30;
     int     img_player_width = 20;
     int     img_player_height = 20;
     //int map[5][5];
     void    *img_blue;
     void    *img_player;
-    char	*path_blue = "images/khaki.xpm";
-    char    *path_player = "images/player.xpm";
+    t_map   map;
+    t_player    player;
     x = 0;
     y = 0;
 
-int map[10][10] = {
-    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, // 500 --> 10.
-    {1, 1, 0, 1, 0, 0, 0, 0, 0, 1},
-    {1, 0, 1, 0, 1, 1, 0, 1, 1, 1},
-    {1, 1, 0, 1, 0, 0, 0, 0, 0, 1},
-    {1, 0, 1, 0, 1, 0, 1, 1, 0, 1},
-    {1, 0, 1, 0, 1, 0, 0, 0, 0, 1},
-    {1, 1, 0, 1, 1, 0, 0, 0, 0, 1},
-    {1, 0, 1, 0, 1, 0, 0, 0, 0, 1},
-    {1, 1, 0, 1, 0, 0, 0, 0, 2, 1},
-    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
-    };
-    img_blue = mlx_xpm_file_to_image(data->mlx_ptr, path_blue, &img_width, &img_height);
-    img_player = mlx_xpm_file_to_image(data->mlx_ptr, path_player, &img_player_width, &img_player_height);
-    if (!img_blue)
-    {
-        printf("fail\n");
-        return ;
-    }
-    while (x < 10)
-    {
-        y = 0;
-        while(y < 10)
-        {
-            if (map[x][y] == 1)
-                mlx_put_image_to_window(data->mlx_ptr, data->win_ptr, img_blue, (80 * x) + 25, ((80 * y) + 25));
-            else if (map[x][y] == 2)
-            {
-                mlx_put_image_to_window(data->mlx_ptr, data->win_ptr, img_player, (80 * x) + 10, ((80 * y) + 10));
-                data->player.posX = (80 * x) + 10;
-                data->player.posY = (80 * y) + 10;
-                draw_vision_vector(data, img_player_width, img_player_height);
-            }
-            y++;
-        }
-        x++;
-    }
+int map[mapWidth][mapHeight]=
+{
+  {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,0,0,0,0,0,2,2,2,2,2,0,0,0,0,3,0,3,0,3,0,0,0,1},
+  {1,0,0,0,0,0,2,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,0,0,0,0,0,2,0,0,0,2,0,0,0,0,3,0,0,0,3,0,0,0,1},
+  {1,0,0,0,0,0,2,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,0,0,0,0,0,2,2,0,2,2,0,0,0,0,3,0,3,0,3,0,0,0,1},
+  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,0,0,0,0,0,0,0,0,0,0,7,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,4,4,4,4,4,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,4,0,4,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,4,0,0,0,0,5,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,4,0,4,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,4,0,4,4,4,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,4,4,4,4,4,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
+};
+    // initialising variables 
+    init_player_data(&map, &player);
+    int side;
+    // stepx; stepy;
+    // determine stepx, stepy : should handle case where x|y = 0
+    player.camerax = 2 * player.posx / (double)mapWidth - 1;
+    player.raydirx = player.dirx + player.planex * player.camerax;
+    player.raydiry = player.diry + player.planey * player.camerax;
+    double deltasidex = abs(1 / player.raydirx); // ray dir cannoot be 0 in this case
+    double deltasidey = abs(1 / player.raydiry);
+    // daba lblan 3endek mapx,y udpated.,x
+    // this will allow me to calculate sidedisX
+    // sideDisty;
+    update_player_data();
+    if (player.dirx < 0)
+        map.sideDistx = (map.mapx + 1 - player.posx) * deltasidex;
+    else
+        map.sideDistx = (player.posx - map.mapx) * deltasidex;
+    if (player.diry < 0)
+        map.sideDisty = (map.mapy + 1 - player.posy) * deltasidey;
+    else
+        map.sideDisty = (map.mapy - player.posy) * deltasidey;
 }
 
 int main()
