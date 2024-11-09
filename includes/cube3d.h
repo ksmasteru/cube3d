@@ -48,5 +48,5 @@ typedef struct s_data{
 
 int close_win(t_data *data);
 int	pressed_key_event(int keycode, t_data *data);
-
+void update_player_step(t_map *map, t_player *player);
 #endif

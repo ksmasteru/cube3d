@@ -69,24 +69,23 @@ void init_player_data(t_map *map, t_player *player)
     map->mapy = (int)player->posy;
 
 }
-void update_player_data(t_map *map, t_player *player)
+/*f(raydirx, raydiry) : ++mapx ? ++mapy*/
+void update_player_step(t_map *map, t_player *player)
 {
     // now used to determine stepx, stepy, and increment the ray
     // iside the square where the player is
-    if (player->dirx < 0)
+    if (player->raydirx < 0)
         player->stepx = -1;
     else
         player->stepx = 1;
-    if (player->diry < 0)
+    if (player->raydiry < 0)
         player->stepy = -1;
     else
         player->stepy = 1;
-    if (player->dirx < player->diry)
+    if (player->raydirx < player->raydiry)
         map->mapx += player->stepx;
     else
-        map->mapy = player->stepy;
-    // deltasidex , deltasidey;
-    
+        map->mapy = player->stepy;    
 }
 
 void    update_camera_data(t_player *player, int x)
@@ -95,6 +94,15 @@ void    update_camera_data(t_player *player, int x)
     player->raydirx = player->dirx + player->planex * player->camerax;
     player->raydiry = player->diry + player->planey * player->camerax;
 }
+
+/* f(dir, plane, camera(x, w, width)) */
+void    update_ray_dir(t_player *player, t_map *map,t_data *data, int x)
+{
+    player->camerax = 2 * x / (double)data->win_width -1;
+    player->raydirx = player->dirx + player->planex * player->camerax;
+    player->raydiry = player->diry + player->planey * player->camerax; 
+}
+
 void render_walls(t_data *data)
 {
     // draw a line on img
@@ -142,24 +150,34 @@ int map[mapWidth][mapHeight]=
     // initialising variables 
     init_player_data(&map, &player);
     int side;
+    int x;
+    int hit;
+
+    hit = 0;
     // stepx; stepy;
     // determine stepx, stepy : should handle case where x|y = 0
-    update_camera_data(&player, 1);
-    player.camerax = 2 * player.posx / (double)mapWidth - 1;
-    player.raydirx = player.dirx + player.planex * player.camerax;
-    player.raydiry = player.diry + player.planey * player.camerax;
-    // daba lblan 3endek mapx,y udpated.,x
-    // this will allow me to calculate sidedisX
-    // sideDisty;
-    update_player_data(&player);
+    update_player_data(&map, &player);
     if (player.dirx < 0)
-        map.sideDistx = (map.mapx + 1 - player.posx) * deltasidex;
+        map.sideDistx = (player.posx - map.mapx) * map.deltasidex;
     else
-        map.sideDistx = (player.posx - map.mapx) * deltasidex;
+        map.sideDistx = (map.mapx + 1 - player.posx) * map.deltasidex;
     if (player.diry < 0)
-        map.sideDisty = (map.mapy + 1 - player.posy) * deltasidey;
+        map.sideDisty = (player.posy - map.mapy) * map.deltasidey;
     else
-        map.sideDisty = (map.mapy - player.posy) * deltasidey;
+        map.sideDisty = (map.mapy + 1 - player.posy) * map.deltasidey;
+    update_ray_dir(&player, &map, data, x);
+    // DDA algo
+    for (int x = 0 ; x < data->win_width ; x++)
+    {
+        update_ray_dir(&player, &map, data, x);
+        update_player_step(&map, &player);       
+        while (hit == 0)
+        {
+            // navigates a square either in x position or in y position depending on sidedistx, sidedisty
+            // shortest path
+            
+        }
+    }
 }
 
 int main()
