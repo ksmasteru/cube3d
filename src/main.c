@@ -63,11 +63,6 @@ void init_player_data(t_map *map, t_player *player)
     player->planey = 0.66;
     player->dirx = -1;
     player->diry = 0;
-    player->stepx = 1;
-    player->stepy = -1;
-    map->mapx = (int)player->posx;
-    map->mapy = (int)player->posy;
-
 }
 
 void update_deltaside(t_map *map, t_player *player)
@@ -120,11 +115,11 @@ void    update_player_step(t_map *map, t_player *player)
 void    update_ray_dir(t_player *player, t_map *map,t_data *data, int x)
 {
     player->camerax = 2 * x / (double)mapWidth -1;
-    printf("camerax is %f\n", player->camerax);
+    //printf("camerax is %f\n", player->camerax);
     player->raydirx = player->dirx + player->planex * player->camerax;
-    printf("raydirx is %f\n", player->raydirx);
+    //printf("raydirx is %f\n", player->raydirx);
     player->raydiry = player->diry + player->planey * player->camerax; 
-    printf("raydirx is %f\n", player->raydiry);
+    //printf("raydiry is %f\n", player->raydiry);
 
 }
 
@@ -169,9 +164,9 @@ void    render_walls(t_data *data)
     // DDA algo
     for (int x = 0 ; x < 24 ; x++)
     {
-        printf("x is %d\n", x);
+        //printf("x is %d\n", x);
         update_ray_dir(&player, &map, data, x);
-        update_player_step(&map, &player);
+    update_player_step(&map, &player);
         hit = 0;       
         while (hit == 0)
         {
@@ -195,6 +190,11 @@ void    render_walls(t_data *data)
                 hit = 1;
             }
         }
+        if (side == 0)
+            walldist = map.sideDistx - map.deltasidex;
+        else
+            walldist = map.sideDisty - map.deltasidey;
+        printf("walldist is %d\n", walldist);
     }
     exit(1);
 }
