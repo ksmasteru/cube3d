@@ -57,7 +57,7 @@ void draw_vision_vector(t_data *data, int img_width, int img_height)
 }
 void init_player_data(t_map *map, t_player *player)
 {
-    player->posx = 22.00;
+    player->posx = 13.00;
     player->posy = 13.00;
     player->planex = 0;
     player->planey = 0.66;
@@ -69,59 +69,72 @@ void init_player_data(t_map *map, t_player *player)
     map->mapy = (int)player->posy;
 
 }
+
+void update_deltaside(t_map *map, t_player *player)
+{
+    if (player->raydirx == 0)
+        map->deltasidex = 1e30;
+    else
+        map->deltasidex = fabs(1 / player->raydirx);
+    if (player->raydiry == 0)
+        map->deltasidey = 1e30;
+    else
+        map->deltasidey = fabs(1 / player->raydiry);
+
+    printf("deltasidex [%f] deltasidey[%f]\n", map->deltasidex, map->deltasidey);
+}
+
 /*f(raydirx, raydiry) : ++mapx ? ++mapy*/
-void update_player_step(t_map *map, t_player *player)
+void    update_player_step(t_map *map, t_player *player)
 {
     // now used to determine stepx, stepy, and increment the ray
     // iside the square where the player is
+    map->mapx = (int)player->posx;
+    map->mapy = (int)player->posy;
     if (player->raydirx < 0)
+    {
         player->stepx = -1;
+        map->sideDistx = (player->posx - map->mapx) * map->deltasidex;
+    }
     else
+    {
         player->stepx = 1;
+        map->sideDisty = (map->mapx + 1 - player->posx) * map->deltasidex;
+    }
     if (player->raydiry < 0)
+    {
         player->stepy = -1;
+        map->sideDisty = (player->posy - map->mapy) * map->deltasidey;
+    }
     else
+    {
         player->stepy = 1;
-    if (player->raydirx < player->raydiry)
-        map->mapx += player->stepx;
-    else
-        map->mapy = player->stepy;    
-}
-
-void    update_camera_data(t_player *player, int x)
-{
-    player->camerax = 2 * x / (double) mapWidth - 1;
-    player->raydirx = player->dirx + player->planex * player->camerax;
-    player->raydiry = player->diry + player->planey * player->camerax;
+        map->sideDisty = (map->mapy + 1 - player->posy) * map->deltasidey;
+    }
+    printf("player stepx %d stepy %d sidedistx %f sidedisty %f\n", player->stepx, player->stepy,
+        map->sideDistx, map->sideDisty);
+    update_deltaside(map, player);
 }
 
 /* f(dir, plane, camera(x, w, width)) */
 void    update_ray_dir(t_player *player, t_map *map,t_data *data, int x)
 {
-    player->camerax = 2 * x / (double)data->win_width -1;
+    player->camerax = 2 * x / (double)mapWidth -1;
+    printf("camerax is %f\n", player->camerax);
     player->raydirx = player->dirx + player->planex * player->camerax;
+    printf("raydirx is %f\n", player->raydirx);
     player->raydiry = player->diry + player->planey * player->camerax; 
+    printf("raydirx is %f\n", player->raydiry);
+
 }
 
-void render_walls(t_data *data)
+void    render_walls(t_data *data)
 {
-    // draw a line on img
-    int     x;
-    int     y;
-    int     img_width = 30;
-    int     img_height = 30;
-    int     img_player_width = 20;
-    int     img_player_height = 20;
-    //int map[5][5];
-    void    *img_blue;
-    void    *img_player;
     t_map   map;
     t_player    player;
-    x = 0;
-    y = 0;
 
-int map[mapWidth][mapHeight]=
-{
+    int maze[mapWidth][mapHeight]=
+    {
   {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
   {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
   {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
@@ -152,32 +165,38 @@ int map[mapWidth][mapHeight]=
     int side;
     int x;
     int hit;
-
-    hit = 0;
-    // stepx; stepy;
-    // determine stepx, stepy : should handle case where x|y = 0
-    update_player_data(&map, &player);
-    if (player.dirx < 0)
-        map.sideDistx = (player.posx - map.mapx) * map.deltasidex;
-    else
-        map.sideDistx = (map.mapx + 1 - player.posx) * map.deltasidex;
-    if (player.diry < 0)
-        map.sideDisty = (player.posy - map.mapy) * map.deltasidey;
-    else
-        map.sideDisty = (map.mapy + 1 - player.posy) * map.deltasidey;
-    update_ray_dir(&player, &map, data, x);
+    int walldist;
     // DDA algo
-    for (int x = 0 ; x < data->win_width ; x++)
+    for (int x = 0 ; x < 24 ; x++)
     {
+        printf("x is %d\n", x);
         update_ray_dir(&player, &map, data, x);
-        update_player_step(&map, &player);       
+        update_player_step(&map, &player);
+        hit = 0;       
         while (hit == 0)
         {
             // navigates a square either in x position or in y position depending on sidedistx, sidedisty
             // shortest path
-            
+            if (map.sideDistx < map.sideDisty)
+            {
+                map.mapx += player.stepx;
+                map.sideDistx += map.deltasidex;
+                side = 0;
+            }
+            else
+            {
+                map.mapy += player.stepy;
+                map.sideDisty += map.deltasidey;
+                side = 1;
+            }
+            if (maze[map.mapx][map.mapy] != 0)
+            {
+                printf("map at %d %d is a wall!\n", map.mapx, map.mapy);
+                hit = 1;
+            }
         }
     }
+    exit(1);
 }
 
 int main()
