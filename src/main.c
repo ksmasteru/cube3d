@@ -57,8 +57,8 @@ void draw_vision_vector(t_data *data, int img_width, int img_height)
 }
 void init_player_data(t_map *map, t_player *player)
 {
-    player->posx = 13.00;
-    player->posy = 13.00;
+    player->posx = 22.00;
+    player->posy = 20.00;
     player->planex = 0;
     player->planey = 0.66;
     player->dirx = -1;
@@ -75,7 +75,6 @@ void update_deltaside(t_map *map, t_player *player)
         map->deltasidey = 1e30;
     else
         map->deltasidey = fabs(1 / player->raydiry);
-
     printf("deltasidex [%f] deltasidey[%f]\n", map->deltasidex, map->deltasidey);
 }
 
@@ -120,7 +119,40 @@ void    update_ray_dir(t_player *player, t_map *map,t_data *data, int x)
     //printf("raydirx is %f\n", player->raydirx);
     player->raydiry = player->diry + player->planey * player->camerax; 
     //printf("raydiry is %f\n", player->raydiry);
-
+}
+void put_wall(t_data *data, double walldist, int stripex)
+{
+    // create an image and draw in it.
+    printf ("drawing a wall at x = %d\n", stripex);
+    char *pixel;
+    int y;
+    int x;
+    int stripeWidth;
+    int lineheight;
+    int end_x;
+    lineheight = (int) data->win_height / walldist; 
+    double y_max =  data->win_height / 2 + lineheight / 2;
+    if (y_max < 0)
+        y_max = 0;
+    double y_min = data->win_height / 2 - lineheight / 2;
+    if (y_min < 0)
+        y_min = 0;
+    //printf("y_max is %f and y_min is %f\n", y_max, y_min);
+    stripeWidth = data->win_width / mapWidth;
+    x = stripeWidth * stripex;
+    end_x = x + stripeWidth;
+    //printf("stripe width is %d\n", stripeWidth);
+    while (x < end_x)
+    {
+        y = y_min;
+        while (y < y_max)
+        {
+            pixel = data->img.adrs + data->img.size_line * y + x * (data->img.bpp / 8);
+            *(int *) pixel = 0x00ff00; 
+            y++;
+        }
+        x++;
+    }
 }
 
 void    render_walls(t_data *data)
@@ -155,23 +187,26 @@ void    render_walls(t_data *data)
   {1,4,4,4,4,4,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
   {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
 };
-    // initialising variables 
     init_player_data(&map, &player);
     int side;
     int x;
     int hit;
-    int walldist;
+    double  walldist;
     // DDA algo
+    if (data->img.mlx_img)
+        ft_destroy_img(data);
+    if (ft_create_img(data) != 0)
+        return ;
     for (int x = 0 ; x < 24 ; x++)
     {
         //printf("x is %d\n", x);
         update_ray_dir(&player, &map, data, x);
-    update_player_step(&map, &player);
+        update_player_step(&map, &player);
         hit = 0;       
         while (hit == 0)
         {
             // navigates a square either in x position or in y position depending on sidedistx, sidedisty
-            // shortest path
+            // shortest path.
             if (map.sideDistx < map.sideDisty)
             {
                 map.mapx += player.stepx;
@@ -186,17 +221,17 @@ void    render_walls(t_data *data)
             }
             if (maze[map.mapx][map.mapy] != 0)
             {
-                printf("map at %d %d is a wall!\n", map.mapx, map.mapy);
+                //printf("for x = %d map at %d %d is a wall!\n", x, map.mapx, map.mapy);
                 hit = 1;
             }
         }
         if (side == 0)
             walldist = map.sideDistx - map.deltasidex;
         else
-            walldist = map.sideDisty - map.deltasidey;
-        printf("walldist is %d\n", walldist);
+            walldist = map.sideDisty - map.deltasidey; 
+        put_wall(data, walldist, x);
     }
-    exit(1);
+    mlx_put_image_to_window(data->mlx_ptr, data->win_ptr, data->img.mlx_img, 0, 0);
 }
 
 int main()
