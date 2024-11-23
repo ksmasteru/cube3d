@@ -19,7 +19,7 @@ INCDIR	= ./includes
 OBJDIR	= ./obj
 
 # src / obj files
-SRC		= src/main.c src/events.c
+SRC		= src/main.c src/events.c src/effects.c src/wall.c
 OBJ		=$(SRC:.c=.o)
 
 # compiler
