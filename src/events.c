@@ -59,7 +59,9 @@ void rotate_player_dir(t_data *data, int keycode)
 
 int	pressed_key_event(int keycode, t_data *data)
 {
-  
+  bool update_img;
+
+  update_img = true;
 	if (keycode == 53 || keycode  == XK_Up || keycode == XK_Down
     || keycode == XK_Right || keycode == XK_Left)
 	{
@@ -68,37 +70,41 @@ int	pressed_key_event(int keycode, t_data *data)
 		if (keycode == XK_Up)
 			update_player_pos(data, 1);
 		else if (keycode == XK_Down)
-			update_player_pos(data, -1);
+			update_img = update_player_pos(data, -1);
     else if (keycode == XK_Right|| keycode == XK_Left)
       rotate_player_dir(data, keycode);
-		render_walls(data);
+		if (update_img)
+      render_walls(data);
 	}
     return (0);
 }
 
-void update_player_pos(t_data *data, int scale)
+// shouldnt render if  both postions havent been updatesd.
+bool update_player_pos(t_data *data, int scale)
 {
-	//player shouldnt be able to cross a wall. : dont slide.
-	double oldposx;
-	double oldposy;
-	
-	oldposx = data->player->posx;
-	oldposy = data->player->posy;
-	data->player->posx += SPEED * scale * data->player->dirx;
-	data->player->posy += SPEED * scale * data->player->diry;
-	if (scale == 1)
+  double  oldposx;
+  double  oldposy;
+
+  oldposx = data->player->posx;
+  oldposy = data->player->posy;
+
+  data->player->posx += SPEED * scale * data->player->dirx;
+  /*move in x direction */
+  if (data->player->posx >= mapHeight - 1 || data->player->posx <= 0
+      || maze[(int)data->player->posx][(int)data->player->posy] != 0)
   {
-    if ((data->player->posx >= mapWidth - 1) || data->player->posx <= 0
-	 	  || maze[(int)data->player->posx][(int)oldposy] != 0)
-		    data->player->posx = oldposx;
-    if ((data->player->posy >= mapHeight - 1) || data->player->posy <= 0
-      || maze[(int)data->player->posx][(int) data->player->posy] != 0)
-      data->player->posy = oldposy;
+          data->player->posx = oldposx;
+      printf("player cannot move in the x direction !!! for x = %f\n", data->player->posx);
   }
-  // do not move back if  a wall is behind you.
-  if (scale == -1)
+  /*move in y direction*/
+  data->player->posy += SPEED * scale * data->player->diry;
+  if (data->player->posy >= mapHeight - 1 || data->player->posy <= 0
+    || maze[(int)data->player->posx][(int)data->player->posy] != 0)
   {
-    
+    printf("player cannot move in the y direction !! for y = %f\n", data->player->posy);
+    data->player->posy = oldposy;
   }
-	printf ("new player position x : %f position y : %f\n", data->player->posx, data->player->posy);
+  if(data->player->posx == oldposx && data->player->posy == oldposy)
+    return false;
+  return (true); 
 }

@@ -38,12 +38,12 @@ int init_data(t_data *data)
 
 void init_player_data(t_map *map, t_player *player)
 {
-    player->posx = 22.00;
-    player->posy = 20.00;
+    player->posx = 22.00; //raw
+    player->posy = 22.00; // column
     player->planex = 0;
     player->planey = 0.66;
-    player->dirx = -1;
-    player->diry = 0;
+    player->dirx = -1; // -raw
+    player->diry = 0; // column
     // player movement acrros the map 0.25x for dir(1, 0) cst value ?
     player->speed = 0.25; // 0.25 box per click
 }
@@ -66,8 +66,8 @@ void    update_player_step(t_map *map, t_player *player)
 {
     // now used to determine stepx, stepy, and increment the ray
     // iside the square where the player is
-    map->mapx = (int)player->posx;
-    map->mapy = (int)player->posy;
+    map->mapx = (int)player->posx;//row
+    map->mapy = (int)player->posy;//column
     if (player->raydirx < 0)
     {
         player->stepx = -1;
@@ -115,6 +115,6 @@ int main()
     render_walls(data);
 	mlx_hook(data->win_ptr, 17, 0, close_win, data);
 	mlx_key_hook(data->win_ptr, pressed_key_event, data);
-mlx_loop(data->mlx_ptr);
+    mlx_loop(data->mlx_ptr);
     return (0);
 }

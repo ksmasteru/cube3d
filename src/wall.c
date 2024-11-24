@@ -62,6 +62,7 @@ void    render_walls(t_data *data)
                 data->map->sideDisty += data->map->deltasidey;
                 side = 1;
             }
+                //row column
             if (maze[data->map->mapx][data->map->mapy] != 0)
                 hit = 1;
         }
@@ -87,6 +88,7 @@ void put_wall(t_data *data, double walldist, int stripex, int color)
 {
     // create an image and draw in it.
     //printf ("drawing a wall at x = %d\n", stripex);
+    // wallidst == 0 means that the wall is just next to the player : MAXSIZE
     char *pixel;
     int y;
     int x;
@@ -94,13 +96,13 @@ void put_wall(t_data *data, double walldist, int stripex, int color)
     int lineheight;
     int end_x;
     lineheight = (int) data->win_height / walldist; 
-    double y_max =  data->win_height / 2 + lineheight / 2;
+    double y_max = data->win_height / 2 + lineheight / 2;
     if (y_max < 0)
         y_max = 0;
-    if (y_max >= data->win_height)
+    if (y_max >= data->win_height || walldist == 0)
         y_max = data->win_height - 1;
     double y_min = data->win_height / 2 - lineheight / 2;
-    if (y_min < 0 || y_min > data->win_height)
+    if (y_min < 0 || y_min > data->win_height || walldist == 0)
         y_min = 0;
     printf("for x stripex %d walldist %f y_max is %f and y_min is %f\n", stripex, walldist ,y_max, y_min);
     stripeWidth = data->win_width / mapWidth;

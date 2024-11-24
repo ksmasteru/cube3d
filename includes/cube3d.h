@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <math.h>
+#include <stdbool.h>
 # include <X11/keysym.h>
 
 #define mapWidth 24
@@ -62,7 +63,7 @@ void    update_player_step(t_map *map, t_player *player);
 int     get_wall_color(int tilevalue, int side);
 int     get_wall_dist(t_map *map, int side);
 void    render_walls(t_data *data);
-void    update_player_pos(t_data *data, int scale);
+bool    update_player_pos(t_data *data, int scale);
 void    init_player_data(t_map *map, t_player *player);
 int     init_data(t_data *data);
 int     ft_create_img(t_data *data);
