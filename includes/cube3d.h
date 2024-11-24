@@ -61,7 +61,7 @@ int     close_win(t_data *data);
 int     pressed_key_event(int keycode, t_data *data);
 void    update_player_step(t_map *map, t_player *player);
 int     get_wall_color(int tilevalue, int side);
-int     get_wall_dist(t_map *map, int side);
+double     get_wall_dist(t_map *map, int side);
 void    render_walls(t_data *data);
 bool    update_player_pos(t_data *data, int scale);
 void    init_player_data(t_map *map, t_player *player);

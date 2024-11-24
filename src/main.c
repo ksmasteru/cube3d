@@ -58,7 +58,7 @@ void update_deltaside(t_map *map, t_player *player)
         map->deltasidey = 1e30;
     else
         map->deltasidey = fabs(1 / player->raydiry);
-    //printf("deltasidex [%f] deltasidey[%f]\n", map->deltasidex, map->deltasidey);
+    printf("deltasidex [%f] deltasidey[%f]\n", map->deltasidex, map->deltasidey);
 }
 
 /*f(raydirx, raydiry) : ++mapx ? ++mapy*/
@@ -66,6 +66,7 @@ void    update_player_step(t_map *map, t_player *player)
 {
     // now used to determine stepx, stepy, and increment the ray
     // iside the square where the player is
+    update_deltaside(map, player);
     map->mapx = (int)player->posx;//row
     map->mapy = (int)player->posy;//column
     if (player->raydirx < 0)
@@ -76,7 +77,7 @@ void    update_player_step(t_map *map, t_player *player)
     else
     {
         player->stepx = 1;
-        map->sideDisty = (map->mapx + 1 - player->posx) * map->deltasidex;
+        map->sideDisty = (map->mapx + 1.0 - player->posx) * map->deltasidex;
     }
     if (player->raydiry < 0)
     {
@@ -86,11 +87,10 @@ void    update_player_step(t_map *map, t_player *player)
     else
     {
         player->stepy = 1;
-        map->sideDisty = (map->mapy + 1 - player->posy) * map->deltasidey;
+        map->sideDisty = (map->mapy + 1.0 - player->posy) * map->deltasidey;
     }
-    //printf("player stepx %d stepy %d sidedistx %f sidedisty %f\n", player->stepx, player->stepy,
-     //   map->sideDistx, map->sideDisty);
-    update_deltaside(map, player);
+    printf("player stepx %d stepy %d sidedistx %f sidedisty %f\n", player->stepx, player->stepy,
+        map->sideDistx, map->sideDisty);
 }
 
 /* f(dir, plane, camera(x, w, width)) */
