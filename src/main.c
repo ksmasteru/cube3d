@@ -38,13 +38,13 @@ int init_data(t_data *data)
 
 void init_player_data(t_map *map, t_player *player)
 {
-    player->posx = 22.00; //raw
-    player->posy = 22.00; // column
+    player->posx = 4.00; //row
+    player->posy = 13.00; // column
     player->planex = 0;
     player->planey = 0.66;
-    player->dirx = -1; // -raw
+    player->dirx = -1; // -row
     player->diry = 0; // column
-    // player movement acrros the map 0.25x for dir(1, 0) cst value ?
+
     player->speed = 0.25; // 0.25 box per click
 }
 
